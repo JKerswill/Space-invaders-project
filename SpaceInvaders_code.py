@@ -32,7 +32,7 @@ invader3 = pygame.transform.scale(invader3, (32, 22))
 shot = pygame.image.load("images/shot.png")
 
 
-# -------------- Classes ------------
+# -------------- Classes -------------
 
 
 class Alien(pygame.sprite.Sprite):
