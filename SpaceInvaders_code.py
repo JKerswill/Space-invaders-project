@@ -38,39 +38,39 @@ shot = pygame.image.load("images/shot.png")
 class Alien(pygame.sprite.Sprite):
     def __init__(self, x, y, d, image):
         super().__init__()
-        self.x = x
-        self.y = y
         self.d = d
         self.x_dir = 1
         self.speed = 1
         self.image = image
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y, self.d, self.d))
+        screen.blit(self.image, (self.rect.x, self.rect.y, self.d, self.d))
 
     def move(self):
-        self.x += self.x_dir * self.speed
+        self.rect.x += self.x_dir * self.speed
 
     def shift_down(self):
-        self.y += self.d
+        self.rect.y += self.d
 
 
 class Bullet(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
-        self.x = x
-        self.y = y
         self.speed = -5
         self.image = shot
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y))
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def move(self):
-        self.y += self.speed
+        self.rect.y += self.speed
 
 
 # -------------- Functions ------------
@@ -88,16 +88,15 @@ def movement(row):
         alien.move()
 
     for e in range(num_aliens):
-        if row[e].x + d >= width:
+        if row[e].rect.x + d >= width:
             for j in range(num_aliens):
                 row[j].x_dir = -1
                 row[j].shift_down()
 
-    if row[0].x <= 0:
+    if row[0].rect.x <= 0:
         for j in range(num_aliens):
             row[j].x_dir = 1
             row[j].shift_down()
-
 
 
 def game_over():
@@ -116,8 +115,11 @@ for i in range(num_shots):
 
 num_aliens = 11
 d = 40
-row_1 = []
-create_row(row_1, 1.5, invader1)
+# row_1 = []
+# create_row(row_1, 1.5, invader1)
+row_1 = pygame.sprite.Group()
+for e in range(num_aliens):
+    row_1.add(Alien((e + 1) * d + e * 20, d * 1.5, d, invader1))
 
 row_2 = []
 create_row(row_2, 2.5, invader2)
@@ -130,7 +132,6 @@ create_row(row_4, 4.5, invader3)
 
 row_5 = []
 create_row(row_5, 5.5, invader3)
-
 
 while True:
     clock.tick(60)
@@ -153,19 +154,31 @@ while True:
         player_x += 5
     if keys[pygame.K_a] and player_x > 0:
         player_x -= 5
-
-    movement(row_1)
+    row_1.draw(screen)
+    # movement(row_1)
     movement(row_2)
     movement(row_3)
     movement(row_4)
     movement(row_5)
 
+    for alien in row_1:
+        alien.draw()
+        alien.move()
 
+    for e in range(num_aliens):
+        if row_1.sprites()[e].rect.x + d >= width:
+            for j in range(num_aliens):
+                row_1.sprites()[j].x_dir = -1
+                row_1.sprites()[j].shift_down()
+
+        if row_1.sprites()[0].rect.x <= 0:
+            for j in range(num_aliens):
+                row_1.sprites()[j].x_dir = 1
+                row_1.sprites()[j].shift_down()
 
     for i in range(num_shots):
         shots[i].draw()
         shots[i].move()
-
 
     screen.blit(player, (player_x, 550))
     pygame.display.update()
