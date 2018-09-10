@@ -154,16 +154,19 @@ while True:
         player_x += 5
     if keys[pygame.K_a] and player_x > 0:
         player_x -= 5
-    row_1.draw(screen)
+
     # movement(row_1)
     movement(row_2)
     movement(row_3)
     movement(row_4)
     movement(row_5)
 
+    alien_hit_list = pygame.sprite.spritecollide(Bullet, row_1, True)
+
+    row_1.draw(screen)
     for alien in row_1:
-        alien.draw()
         alien.move()
+
 
     for e in range(num_aliens):
         if row_1.sprites()[e].rect.x + d >= width:
@@ -171,10 +174,10 @@ while True:
                 row_1.sprites()[j].x_dir = -1
                 row_1.sprites()[j].shift_down()
 
-        if row_1.sprites()[0].rect.x <= 0:
-            for j in range(num_aliens):
-                row_1.sprites()[j].x_dir = 1
-                row_1.sprites()[j].shift_down()
+    if row_1.sprites()[0].rect.x <= 0:
+        for j in range(num_aliens):
+            row_1.sprites()[j].x_dir = 1
+            row_1.sprites()[j].shift_down()
 
     for i in range(num_shots):
         shots[i].draw()
