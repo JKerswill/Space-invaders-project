@@ -57,7 +57,6 @@ class Alien(pygame.sprite.Sprite):
 
 
 class Bullet(pygame.sprite.Sprite):
-
     def __init__(self, x, y):
         super().__init__()
         self.speed = -5
@@ -108,10 +107,10 @@ def game_over():
 # -------------- Main Game Loop ------------
 
 num_shots = 0
-shots = []
+shots = pygame.sprite.Group()
 for i in range(num_shots):
     Bullet(player_x, 440)
-    shots.append(i)
+    shots.add(i)
 
 num_aliens = 11
 d = 40
@@ -146,7 +145,7 @@ while True:
                 num_shots += 1
                 shoot_x = player_x + 18
                 i = Bullet(shoot_x, 540)
-                shots.append(i)
+                shots.add(i)
 
     keys = pygame.key.get_pressed()
 
@@ -161,7 +160,12 @@ while True:
     movement(row_4)
     movement(row_5)
 
-    alien_hit_list = pygame.sprite.spritecollide(Bullet, row_1, True)
+    for bullet in shots:
+        alien_hit_list = pygame.sprite.spritecollide(bullet, row_1, True)
+
+        if bullet.rect.y < -10:
+            shots.remove(bullet)
+
 
     row_1.draw(screen)
     for alien in row_1:
@@ -179,9 +183,9 @@ while True:
             row_1.sprites()[j].x_dir = 1
             row_1.sprites()[j].shift_down()
 
+    shots.draw(screen)
     for i in range(num_shots):
-        shots[i].draw()
-        shots[i].move()
+        shots.sprites()[i].move()
 
     screen.blit(player, (player_x, 550))
     pygame.display.update()

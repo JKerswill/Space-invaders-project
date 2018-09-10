@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7cc158b2-80a3-4b01-b4dd-c9d4beb0d8fe" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SpaceInvaders_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/SpaceInvaders_code.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,8 +20,8 @@
       <file leaf-file-name="SpaceInvaders_code.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SpaceInvaders_code.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-53">
-              <caret line="139" column="36" lean-forward="true" selection-start-line="139" selection-start-column="36" selection-end-line="139" selection-end-column="36" />
+            <state relative-caret-position="372">
+              <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -143,6 +144,21 @@
       <option name="presentableId" value="Default" />
       <updated>1524845400317</updated>
     </task>
+    <task id="LOCAL-00001" summary="Sprites">
+      <created>1536596922158</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1536596922158</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Sprites correction">
+      <created>1536601467138</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1536601467138</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -161,7 +177,7 @@
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49925038" weight="0.12153518" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32897604" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32946634" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.32897604" />
       <window_info active="true" anchor="right" id="Run" order="3" visible="true" weight="0.39146706" />
       <window_info id="Structure" order="1" sideWeight="0.50074965" side_tool="true" weight="0.07218124" />
@@ -198,8 +214,23 @@
       <window_info id="Favorites" order="2" sideWeight="0.50074965" side_tool="true" weight="0.07218124" />
     </layout-to-restore>
   </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Sprites" />
+    <MESSAGE value="Sprites correction" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sprites correction" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -213,7 +244,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="29" />
+      <option name="time" value="31" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -356,10 +387,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Space invaders sprite test.py" />
+    <entry file="file://$USER_HOME$/PycharmProjects/SpaceInvaders/venv/Lib/site-packages/pygame/sprite.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="1512" selection-start-line="1512" selection-end-line="1512" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SpaceInvaders_code.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-53">
-          <caret line="139" column="36" lean-forward="true" selection-start-line="139" selection-start-column="36" selection-end-line="139" selection-end-column="36" />
+        <state relative-caret-position="372">
+          <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
