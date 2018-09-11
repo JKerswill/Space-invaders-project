@@ -17,8 +17,13 @@
       <file leaf-file-name="SpaceInvaders_code.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SpaceInvaders_code.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="268">
               <caret line="184" selection-start-line="136" selection-end-line="184" />
+=======
+            <state relative-caret-position="372">
+              <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
+>>>>>>> 9af104dad6e6bbfdcd1e2d62ffdffd66e0437a38
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -46,11 +51,19 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="ProjectFrameBounds">
     <option name="x" value="154" />
     <option name="y" value="90" />
     <option name="width" value="1168" />
     <option name="height" value="606" />
+=======
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="273" />
+    <option name="y" value="12" />
+    <option name="width" value="1396" />
+    <option name="height" value="1000" />
+>>>>>>> 9af104dad6e6bbfdcd1e2d62ffdffd66e0437a38
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -141,6 +154,28 @@
       <option name="presentableId" value="Default" />
       <updated>1524845400317</updated>
     </task>
+    <task id="LOCAL-00001" summary="Sprites">
+      <created>1536596922158</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1536596922158</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Sprites correction">
+      <created>1536601467138</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1536601467138</updated>
+    </task>
+    <task id="LOCAL-00003" summary="collisions broke everything">
+      <created>1536611567232</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1536611567232</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView">
@@ -153,14 +188,24 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
+<<<<<<< HEAD
     <frame x="154" y="90" width="1168" height="606" extended-state="0" />
+=======
+    <frame x="273" y="12" width="1396" height="1000" extended-state="0" />
+>>>>>>> 9af104dad6e6bbfdcd1e2d62ffdffd66e0437a38
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49925038" weight="0.12153518" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32897604" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
+<<<<<<< HEAD
       <window_info anchor="right" id="Run" order="3" weight="0.39146706" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.32897604" />
+=======
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" visible="true" weight="0.32946634" />
+      <window_info anchor="bottom" id="Python Console" order="8" weight="0.32897604" />
+      <window_info anchor="right" id="Run" order="3" visible="true" weight="0.39146706" />
+>>>>>>> 9af104dad6e6bbfdcd1e2d62ffdffd66e0437a38
       <window_info id="Structure" order="1" sideWeight="0.50074965" side_tool="true" weight="0.07218124" />
       <window_info anchor="bottom" id="Terminal" order="9" weight="0.30392158" />
       <window_info anchor="bottom" id="Debug" order="2" weight="0.39907193" />
@@ -195,8 +240,24 @@
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.32897604" />
     </layout-to-restore>
   </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Sprites" />
+    <MESSAGE value="Sprites correction" />
+    <MESSAGE value="collisions broke everything" />
+    <option name="LAST_COMMIT_MESSAGE" value="collisions broke everything" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -210,7 +271,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="29" />
+      <option name="time" value="31" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -363,10 +424,22 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Space invaders sprite test.py" />
+    <entry file="file://$USER_HOME$/PycharmProjects/SpaceInvaders/venv/Lib/site-packages/pygame/sprite.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="1512" selection-start-line="1512" selection-end-line="1512" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SpaceInvaders_code.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="268">
           <caret line="184" selection-start-line="136" selection-end-line="184" />
+=======
+        <state relative-caret-position="372">
+          <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
+>>>>>>> 9af104dad6e6bbfdcd1e2d62ffdffd66e0437a38
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
