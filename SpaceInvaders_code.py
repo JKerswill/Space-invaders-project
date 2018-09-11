@@ -55,6 +55,17 @@ class Alien(pygame.sprite.Sprite):
     def shift_down(self):
         self.rect.y += self.d
 
+    def update(self):
+        self.rect.x += self.x_dir * self.speed
+
+        if self.rect.x + self.d >= width:
+            self.x_dir = -1
+
+
+        if self.rect.x <= 0:
+            self.x_dir = 1
+
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -68,9 +79,8 @@ class Bullet(pygame.sprite.Sprite):
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
-    def move(self):
+    def update(self):
         self.rect.y += self.speed
-
 
 # -------------- Functions ------------
 
@@ -168,24 +178,24 @@ while True:
 
 
     row_1.draw(screen)
-    for alien in row_1:
-        alien.move()
+    row_1.update()
+    #for alien in row_1:
+        #alien.move()
 
 
-    for e in range(num_aliens):
-        if row_1.sprites()[e].rect.x + d >= width:
-            for j in range(num_aliens):
-                row_1.sprites()[j].x_dir = -1
-                row_1.sprites()[j].shift_down()
+    #for e in range(num_aliens):
+        #if row_1.sprites()[e].rect.x + d >= width:
+            #for j in range(num_aliens):
+                #row_1.sprites()[j].x_dir = -1
+                #row_1.sprites()[j].shift_down()
 
-    if row_1.sprites()[0].rect.x <= 0:
-        for j in range(num_aliens):
-            row_1.sprites()[j].x_dir = 1
-            row_1.sprites()[j].shift_down()
+    #if row_1.sprites()[0].rect.x <= 0:
+        #for j in range(num_aliens):
+            #row_1.sprites()[j].x_dir = 1
+            #row_1.sprites()[j].shift_down()
 
     shots.draw(screen)
-    for i in range(num_shots):
-        shots.sprites()[i].move()
+    shots.update()
 
     screen.blit(player, (player_x, 550))
     pygame.display.update()
