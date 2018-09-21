@@ -1,5 +1,6 @@
 import pygame
 import sys
+import SQL
 
 # -------------- Initialization ------------
 pygame.init()
@@ -16,8 +17,6 @@ pygame.display.set_icon(icon)
 # -------------- Setting Images ------------
 player = pygame.image.load('images/ship.png')
 player = pygame.transform.scale(player, (40, 30))
-player_x = 350
-
 
 invader1 = pygame.image.load('images/Enemy1.png')
 invader1 = pygame.transform.scale(invader1, (30, 22))
@@ -30,29 +29,32 @@ invader3 = pygame.transform.scale(invader3, (32, 22))
 
 shot = pygame.image.load("images/shot.png")
 
+# -------------- Global variables ------------
+d = 40
+
+
 
 # -------------- Classes -------------
 
 
 class Alien(pygame.sprite.Sprite):
-    def __init__(self, x, y, d, image, ):
+    def __init__(self, x, y, d, image, points):
         super().__init__()
         self.d = d
-        self.x_dir = 1
-        self.speed = 1
+        #self.x_dir = 1
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.points = points
 
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y, self.d, self.d))
 
-    def shift_down(self):
-        self.rect.y += (1/10) * self.d
-
-    def update(self, direction):
-        self.rect.x += direction * self.speed
+    def update(self, direction, update_speed, shift_down):
+        self.rect.x += direction * update_speed
+        if shift_down:
+            self.rect.y += (1/2)*self.d
 
 
 
@@ -74,19 +76,35 @@ class Bullet(pygame.sprite.Sprite):
 # -------------- Functions ------------
 
 
-def create_row(row, separation, img1):
+def create_row(row, separation, img1, points):
+    num_aliens = 11
     for e in range(num_aliens):
-        row.add(Alien((e + 1) * d + e * 20, d * separation, d, img1))
-
+        row.add(Alien((e + 1) * d + e * 20, d * separation, d, img1, points))
+        all_aliens_list.add(Alien((e + 1) * d + e * 20, d * separation, d, img1, points))
 
 def game_over():
-    font_large = pygame.font.SysFont("Space Invaders Regular", 100)
+    print('game over')
+    font_large = pygame.font.SysFont("Times New Roman", 100)
     text2 = font_large.render("Game Over!", True, (255, 255, 255))
-    screen.blit(text2, (80, height / 2 - 50))
+    screen.blit(text2, (150, 200))
+
+
+def display_score(score):
+    font = pygame.font.SysFont("Time New Roman", 16)
+    points = font.render("score= "+str(score), True, (255, 255,255))
+    screen.blit(points, (5, 5))
+
+def reset():
+    create_row(row_1, 1.5, invader1, 30)
+    create_row(row_2, 2.5, invader2, 20)
+    create_row(row_3, 3.5, invader2, 20)
+    create_row(row_4, 4.5, invader3, 10)
+    create_row(row_5, 5.5, invader3, 10)
+
+
 
 
 # -------------- Main Game Loop ------------
-direction = 1
 
 num_shots = 0
 shots = pygame.sprite.Group()
@@ -94,83 +112,138 @@ for i in range(num_shots):
     Bullet(player_x, 440)
     shots.add(i)
 
-num_aliens = 11
-d = 40
 
-row_1 = pygame.sprite.Group()
-create_row(row_1, 1.5, invader1)
-
-row_2 = pygame.sprite.Group()
-create_row(row_2, 2.5, invader2)
-
-row_3 = pygame.sprite.Group()
-create_row(row_3, 3.5, invader2)
-
-row_4 = pygame.sprite.Group()
-create_row(row_4, 4.5, invader3)
-
-row_5 = pygame.sprite.Group()
-create_row(row_5, 5.5, invader3)
 
 all_aliens_list = pygame.sprite.Group()
 
-all_aliens_list.add(row_1)
-all_aliens_list.add(row_2)
-all_aliens_list.add(row_3)
-all_aliens_list.add(row_4)
-all_aliens_list.add(row_5)
+row_1 = pygame.sprite.Group()
+row_2 = pygame.sprite.Group()
+row_3 = pygame.sprite.Group()
+row_4 = pygame.sprite.Group()
+row_5 = pygame.sprite.Group()
+reset()
 
-while True:
-    clock.tick(60)
-    screen.fill((0, 0, 0))
+def start_screen():
+    bx, by = 350, 300
+    R, G, B = 255, 255, 255
+    start_button = pygame.draw.rect(screen, (0, 244, 0), (bx, by, 90, 40))
+    font = pygame.font.SysFont("Time New Roman", 60)
+    play = font.render("Play", True, (R, G, B))
+    screen.blit(play, (bx, by))
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
+    while True:
+        pygame.display.update()
+        clock.tick(15)
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                num_shots += 1
-                shoot_x = player_x + 18
-                i = Bullet(shoot_x, 540)
-                shots.add(i)
-
-    keys = pygame.key.get_pressed()
-
-    if keys[pygame.K_d] and player_x < width - 40:
-        player_x += 5
-    if keys[pygame.K_a] and player_x > 0:
-        player_x -= 5
-
-    #-----------Collisions-----------
-    for bullet in shots:
-        alien_hit_list = pygame.sprite.spritecollide(bullet, all_aliens_list, True)
-
-        for alien in alien_hit_list:
-            shots.remove(bullet)
-
-        if bullet.rect.y < -10:
-            shots.remove(bullet)
-    for alien in all_aliens_list:
-        bullet_hit_list = pygame.sprite.spritecollide(alien, shots, True)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
 
 
-    #-----------Alien Movement-----------
-    for alien in all_aliens_list:
-        if alien.rect.x + d >= width:
-            direction = -1
-            for i in all_aliens_list:
-                i.shift_down()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pygame.mouse.get_pos() >= (bx, by):
+                    print ('x,y')
+                    if pygame.mouse.get_pos() <= (bx + 90, by ):
+                        print('x+90,y+40')
+                        game_loop(num_shots)
 
-        if alien.rect.x <= 0:
-            direction = 1
-            for i in all_aliens_list:
-                i.shift_down()
 
-    all_aliens_list.draw(screen)
-    all_aliens_list.update(direction)
-    shots.draw(screen)
-    shots.update()
 
-    screen.blit(player, (player_x, 550))
-    pygame.display.update()
+
+def game_loop(num_shots):
+    playing = True
+    player_x = 350
+    direction = 1
+    speed = 1
+    score = 0
+
+
+    while playing:
+        clock.tick(60)
+        screen.fill((0, 0, 0))
+
+        # -----------Register keypress-----------
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    num_shots += 1
+                    shoot_x = player_x + 18
+                    i = Bullet(shoot_x, 540)
+                    shots.add(i)
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_d] and player_x < width - 40:
+            player_x += 10
+        if keys[pygame.K_a] and player_x > 0:
+            player_x -= 10
+
+        #-----------Collisions-----------
+        for bullet in shots:
+            alien_hit_list = pygame.sprite.spritecollide(bullet, all_aliens_list, True)
+
+            for alien in alien_hit_list:
+                shots.remove(bullet)
+                score += alien.points
+
+
+            if bullet.rect.y < -10:
+                shots.remove(bullet)
+
+
+
+        #-----------Alien Movement-----------
+
+        shift_down = False
+        accelerate = False
+        for alien in all_aliens_list:
+            if alien.rect.x + d >= width:
+                direction = -1
+                shift_down = True
+                accelerate = True
+
+
+            if alien.rect.x <= 0:
+                direction = 1
+                shift_down = True
+                accelerate = True
+
+            #print(alien.rect.y)
+
+            if alien.rect.y >= 521:
+                playing = False
+
+
+        if accelerate and speed != 4:
+            speed += 0.5
+
+
+
+
+
+        if not all_aliens_list:
+            speed -= 1
+            reset()
+
+        all_aliens_list.draw(screen)
+        all_aliens_list.update(direction, speed, shift_down)
+        shift_down = False
+        shots.draw(screen)
+        shots.update()
+        display_score(score)
+        screen.blit(player, (player_x, 550))
+        pygame.display.update()
+
+        if not playing:
+            SQL.add_score('jamie', score)
+            SQL.display_table()
+            game_over()
+
+
+#game_loop(num_shots)
+start_screen()
+
+
