@@ -52,7 +52,9 @@ class Alien(pygame.sprite.Sprite):
         screen.blit(self.image, (self.rect.x, self.rect.y, self.d, self.d))
 
     def update(self, direction, update_speed, shift_down):
+
         self.rect.x += direction * update_speed
+
         if shift_down:
             self.rect.y += (1/2)*self.d
 
@@ -73,6 +75,15 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.rect.y += self.speed
 
+class Barrier(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.draw.rect(screen, (0,255,0),(x, y, 3, 3))
+        #self.rect = self.image.get_rect()
+
+    def update(self):
+        screen.blit(self.image)
+
 # -------------- Functions ------------
 
 
@@ -84,13 +95,13 @@ def create_row(row, separation, img1, points):
 
 def game_over():
     print('game over')
-    font_large = pygame.font.SysFont("Times New Roman", 100)
+    font_large = pygame.font.SysFont("Space Invaders Regular", 100)
     text2 = font_large.render("Game Over!", True, (255, 255, 255))
     screen.blit(text2, (150, 200))
 
 
 def display_score(score):
-    font = pygame.font.SysFont("Time New Roman", 16)
+    font = pygame.font.SysFont("", 16)
     points = font.render("score= "+str(score), True, (255, 255,255))
     screen.blit(points, (5, 5))
 
@@ -124,12 +135,28 @@ row_5 = pygame.sprite.Group()
 reset()
 
 def start_screen():
-    bx, by = 350, 300
+    bx, by = 350, 150
     R, G, B = 255, 255, 255
-    start_button = pygame.draw.rect(screen, (0, 244, 0), (bx, by, 90, 40))
-    font = pygame.font.SysFont("Time New Roman", 60)
+    start_button = pygame.draw.rect(screen, (0, 0, 0), (bx, by, 77, 27))
+    font = pygame.font.SysFont('Space Invaders Regular', 26)
     play = font.render("Play", True, (R, G, B))
     screen.blit(play, (bx, by))
+
+
+    Space_ivaders = font.render("Space    Invaders", True, (255, 255, 255))
+    screen.blit(Space_ivaders, (250, 200))
+
+    font_small = pygame.font.SysFont('Space Invaders Regular', 19)
+
+    screen.blit(font.render("*SCORE ADVANCE TABLE*", True, (255, 255, 255)), (180 ,290))
+    screen.blit(invader1, (250, 347))
+    screen.blit(font_small.render("= 30       points", True, (255, 255, 255)), (287, 350))
+    screen.blit(invader2, (250, 387))
+    screen.blit(font_small.render("= 20       points", True, (255, 255, 255)), (287, 390))
+    screen.blit(invader3, (250, 427))
+    screen.blit(font_small.render("= 10        points", True, (0, 255, 0)), (287, 430))
+
+
 
     while True:
         pygame.display.update()
@@ -140,11 +167,10 @@ def start_screen():
                 pygame.quit()
 
 
+
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pygame.mouse.get_pos() >= (bx, by):
-                    print ('x,y')
-                    if pygame.mouse.get_pos() <= (bx + 90, by ):
-                        print('x+90,y+40')
+                if pygame.mouse.get_pos()[0] >= bx and pygame.mouse.get_pos()[1] >= by:
+                    if pygame.mouse.get_pos()[0] <= bx + 77 and pygame.mouse.get_pos()[1] <= by + 27:
                         game_loop(num_shots)
 
 
@@ -154,7 +180,7 @@ def game_loop(num_shots):
     playing = True
     player_x = 350
     direction = 1
-    speed = 1
+    speed = 10
     score = 0
 
 
@@ -205,7 +231,6 @@ def game_loop(num_shots):
                 shift_down = True
                 accelerate = True
 
-
             if alien.rect.x <= 0:
                 direction = 1
                 shift_down = True
@@ -217,19 +242,19 @@ def game_loop(num_shots):
                 playing = False
 
 
-        if accelerate and speed != 4:
-            speed += 0.5
+        #if accelerate and speed != 4:
+            #speed += 5
 
 
 
 
 
         if not all_aliens_list:
-            speed -= 1
+            #speed -= 1
             reset()
 
         all_aliens_list.draw(screen)
-        all_aliens_list.update(direction, speed, shift_down)
+        all_aliens_list.update(direction, speed/10, shift_down)
         shift_down = False
         shots.draw(screen)
         shots.update()
@@ -243,7 +268,6 @@ def game_loop(num_shots):
             game_over()
 
 
-#game_loop(num_shots)
 start_screen()
 
 
