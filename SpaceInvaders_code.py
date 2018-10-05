@@ -32,14 +32,21 @@ invader1_2 = pygame.transform.scale(invader1_2, (30, 22))
 invader2 = pygame.image.load('images/Enemy2.png')
 invader2 = pygame.transform.scale(invader2, (34, 22))
 
+invader2_2 = pygame.image.load('images/Enemy2_2.png')
+invader2_2 = pygame.transform.scale(invader2_2, (34, 22))
+
 invader3 = pygame.image.load('images/Enemy3.png')
 invader3 = pygame.transform.scale(invader3, (32, 22))
+
+invader3_2 = pygame.image.load('images/Enemy3_2.png')
+invader3_2 = pygame.transform.scale(invader3_2, (32, 22))
 
 shot = pygame.image.load("images/shot.png")
 
 # -------------- Setting Events ------------
 invader_move_event = pygame.USEREVENT + 1
 invincible_event = pygame.USEREVENT + 2
+player_shoot_event = pygame.USEREVENT + 3
 
 # -------------- Global variables ------------
 d = 40
@@ -54,6 +61,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = 550
         self.invincible = False
+        self.can_shoot = True
 
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
@@ -106,6 +114,7 @@ class Alien(pygame.sprite.Sprite):
 
         if shift_down:
             self.rect.y += 3/4 *self.d
+
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -216,10 +225,10 @@ def create_row(row, y_separation, img1, img2, points):
 
 def reset():
     create_row(row_1, 1.5, invader1, invader1_2, 30)
-    create_row(row_2, 2.5, invader2, invader2, 20)
-    create_row(row_3, 3.5, invader2, invader2, 20)
-    create_row(row_4, 4.5, invader3, invader3, 10)
-    create_row(row_5, 5.5, invader3, invader3, 10)
+    create_row(row_2, 2.5, invader2, invader2_2, 20)
+    create_row(row_3, 3.5, invader2, invader2_2, 20)
+    create_row(row_4, 4.5, invader3, invader3_2, 10)
+    create_row(row_5, 5.5, invader3, invader3_2, 10)
 
 
 
@@ -417,12 +426,19 @@ def game_loop():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     for player in players:
-                        shoot_x = player.rect.x + 18
-                    shots.add(Bullet(shoot_x, 540))
+                        if player.can_shoot:
+                            shoot_x = player.rect.x + 18
+                            shots.add(Bullet(shoot_x, 540))
+                            player.can_shoot = False
+                            pygame.time.set_timer(player_shoot_event, 400)
 
             if event.type == invincible_event:
                 for player in players:
                     player.invincible = False
+
+            if event.type == player_shoot_event:
+                for player in players:
+                    player.can_shoot = True
 
             if event.type == invader_move_event:
                 all_aliens_list.update(direction, speed / 10, shift_down)
