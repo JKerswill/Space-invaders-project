@@ -2,9 +2,6 @@ import pygame
 import sys
 import SQL
 import random
-import sched
-import time
-
 
 # -------------- Initialization ------------
 pygame.init()
@@ -18,7 +15,6 @@ pygame.display.set_caption("Space Invaders")
 icon = pygame.image.load('images/game.png')
 pygame.display.set_icon(icon)
 
-scheduler = sched.scheduler(time.time, time.sleep)
 # -------------- Setting Images ------------
 player = pygame.image.load('images/ship.png')
 player = pygame.transform.scale(player, (40, 30))
@@ -47,6 +43,7 @@ shot = pygame.image.load("images/shot.png")
 invader_move_event = pygame.USEREVENT + 1
 invincible_event = pygame.USEREVENT + 2
 player_shoot_event = pygame.USEREVENT + 3
+player_respawn_event = pygame.USEREVENT + 4
 
 # -------------- Global variables ------------
 d = 40
@@ -62,20 +59,17 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 550
         self.invincible = False
         self.can_shoot = True
-
-    def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+        self.respawning = False
 
     def update(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT] and self.rect.x < width - 40:
-            self.rect.x += 10
-        if keys[pygame.K_a] or keys[pygame.K_LEFT] and self.rect.x > 0:
-            self.rect.x -= 10
-
-
-
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            if self.rect.x < width - 40:
+                self.rect.x += 6
+        if keys[pygame.K_a] or keys[pygame.K_LEFT] and self.rect.x < 0:
+            if self.rect.x > 0:
+                self.rect.x -= 6
 
 
 class Alien(pygame.sprite.Sprite):
@@ -92,16 +86,9 @@ class Alien(pygame.sprite.Sprite):
         self.points = points
         self.can_shoot = True
 
-    def draw(self):
-        if self.image == self.img1:
-            print("img1")
-        if self.image == self.img2:
-            print("img2")
-        screen.blit(self.image, (self.rect.x, self.rect.y, self.d, self.d))
-
     def update(self, direction, update_speed, shift_down):
 
-        self.rect.x += direction * update_speed#
+        self.rect.x += direction * update_speed
 
         if self.image == self.img1:
             self.image = self.img2
@@ -109,25 +96,18 @@ class Alien(pygame.sprite.Sprite):
         elif self.image == self.img2:
             self.image = self.img1
 
-
-
-
         if shift_down:
-            self.rect.y += 3/4 *self.d
-
+            self.rect.y += 3 / 4 * self.d
 
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.speed = -20
+        self.speed = -18
         self.image = shot
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-    def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def update(self):
         self.rect.y += self.speed
@@ -142,9 +122,6 @@ class AlienBullet(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-
     def update(self):
         self.rect.y += self.speed
 
@@ -158,9 +135,6 @@ class TestBullet(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-
     def update(self):
         self.rect.y -= self.speed
 
@@ -168,15 +142,16 @@ class TestBullet(pygame.sprite.Sprite):
 class Barrier(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.draw.rect(screen, (0, 255, 0), (x, y, 3, 3))
+        self.rect = pygame.Rect((x, y), (3, 3))
+        self.rect.x = x
+        self.rect.y = y
         # self.rect = self.image.get_rect()
 
     def update(self):
-        screen.blit(self.image)
+        pygame.draw.rect(screen, (0, 255, 0), self.rect)
 
 
 # -------------- Functions ------------
-
 
 
 def game_over():
@@ -194,11 +169,11 @@ def game_over():
                 pygame.quit()
 
 
-
 def display_score(score):
     font = pygame.font.SysFont("Space Invaders Regular", 11)
     points = font.render("score= " + str(score), True, (255, 255, 255))
     screen.blit(points, (5, 5))
+
 
 def display_lives(lives):
     font = pygame.font.SysFont("Space Invaders Regular", 11)
@@ -215,12 +190,12 @@ def display_lives(lives):
     if lives >= 3:
         screen.blit(player_small, (765, 5))
 
+
 def create_row(row, y_separation, img1, img2, points):
     num_aliens = 11
     for e in range(num_aliens):
         row.add(Alien((e + 1) * d + e * 10, d * y_separation, d, img1, img2, points))
         all_aliens_list.add(Alien((e + 1) * d + e * 10, d * y_separation, d, img1, img2, points))
-
 
 
 def reset():
@@ -230,6 +205,38 @@ def reset():
     create_row(row_4, 4.5, invader3, invader3_2, 10)
     create_row(row_5, 5.5, invader3, invader3_2, 10)
 
+
+
+def create_barrier(x_multiplier):
+    rge = 10
+    increment = 15
+    y = 473
+    for i in range(5):
+        for i in range(rge):
+            all_barriers.add(Barrier(i * 3 + x_multiplier + increment, y))
+        rge += 2
+        increment -= 3
+        y += 3
+
+    for i in range(6):
+        for i in range(20):
+            all_barriers.add(Barrier(i * 3 + x_multiplier, y))
+        y += 3
+
+    increment = 39
+    rge = 7
+    for i in range(3):
+        for i in range(rge):
+            all_barriers.add(Barrier(i * 3 + x_multiplier, y))
+            all_barriers.add(Barrier(i * 3 + x_multiplier + increment, y))
+        rge -= 1
+        increment += 3
+        y += 3
+
+
+    for i in range(5):
+        all_barriers.add(Barrier(i * 3 + x_multiplier, 515))
+        all_barriers.add(Barrier(i * 3 + x_multiplier + 45, 515))
 
 
 
@@ -249,20 +256,18 @@ row_4 = pygame.sprite.Group()
 row_5 = pygame.sprite.Group()
 reset()
 
-barrier1 = pygame.sprite.Group()
-barrier2 = pygame.sprite.Group()
+all_barriers = pygame.sprite.Group()
 
-for i in range(50):
-    barrier1.add(Barrier(i + 1 *50, 500))
+create_barrier(70)
+create_barrier(250)
+create_barrier(430)
+create_barrier(610)
 
-for i in range(50):
-    barrier2.add(Barrier(i + 1 * 50, 503))
 
 
 def start_screen():
     bx, by = 350, 150
     r, g, b = 255, 255, 255
-    # pygame.draw.rect(screen, (0, 0, 0), (bx, by, 77, 27))
     font = pygame.font.SysFont('Space Invaders Regular', 26)
     play = font.render("Play", True, (r, g, b))
     screen.blit(play, (bx, by))
@@ -297,18 +302,17 @@ def start_screen():
 
 def game_loop():
     playing = True
-    player_x = 350
     direction = 1
-    speed = 100
+    speed = 500
     score = 0
     players = pygame.sprite.Group()
     players.add(Player(350))
 
     lives = 3
 
-    pygame.time.set_timer(invader_move_event, 500)
+    pygame.time.set_timer(invader_move_event, speed)
 
-
+    aliens_prev = 55
 
     while playing:
         clock.tick(60)
@@ -318,14 +322,13 @@ def game_loop():
             players.add(Player(350))
             for player in players:
                 player.invincible = True
+                player.respawning = True
 
-                pygame.time.set_timer(invincible_event, 1000)
-
+                pygame.time.set_timer(invincible_event, 1500)
+                pygame.time.set_timer(player_respawn_event, 500)
 
         if lives == 0:
             playing = False
-
-
 
         # -----------Collisions-----------
         for bullet in shots:
@@ -378,7 +381,22 @@ def game_loop():
                 lives -= 1
                 player_hit_lsit.remove(i)
 
+            if bullet.rect.y > height:
+                alien_shots.remove(bullet)
 
+        # -----------Testing for barrier being shot-----------
+        for bullet in shots:
+            barrier_hit_list = pygame.sprite.spritecollide(bullet, all_barriers, True)
+
+            for barrier in barrier_hit_list:
+                alien_shots.remove(bullet)
+                shots.remove(bullet)
+
+        for bullet in alien_shots:
+            barrier_hit_list = pygame.sprite.spritecollide(bullet, all_barriers, True)
+
+            for barrier in barrier_hit_list:
+                alien_shots.remove(bullet)
 
         # -----------Alien Movement-----------
 
@@ -400,25 +418,26 @@ def game_loop():
             if alien.rect.y >= 521:
                 playing = False
 
-
             # -----------Alien shooting-----------
             if pygame.time.get_ticks() % 500:
-                test_shots.add(TestBullet(alien.rect[0] + 15, alien.rect[1]-10))
+                test_shots.add(TestBullet(alien.rect[0] + 15, alien.rect[1] - 10))
 
             if alien.can_shoot:
-                if pygame.time.get_ticks() % random.randint(10, 4000) == 0:
+                if pygame.time.get_ticks() % random.randint(10, 3000) == 0:
                     alien_shots.add(AlienBullet(alien.rect[0] + 15, alien.rect[1] + 30))
-
-        # if accelerate and speed != 4:
-        # speed += 5
-
 
 
         if not all_aliens_list:
-            # speed -= 1
             reset()
 
-        # -----------Register keypress-----------
+        print('aliens =', len(all_aliens_list), 'speed =', speed)
+        if len(all_aliens_list) < aliens_prev:
+            speed -= 50
+            aliens_prev = len(all_aliens_list)
+
+
+
+        # -----------Event polling-----------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -440,10 +459,12 @@ def game_loop():
                 for player in players:
                     player.can_shoot = True
 
+            if event.type == player_respawn_event:
+                for player in players:
+                    player.respawning = False
+
             if event.type == invader_move_event:
-                all_aliens_list.update(direction, speed / 10, shift_down)
-
-
+                all_aliens_list.update(direction, 10, shift_down)
 
         all_aliens_list.draw(screen)
 
@@ -456,8 +477,11 @@ def game_loop():
         alien_shots.update()
         display_score(score)
         display_lives(lives)
-        players.draw(screen)
-        players.update()
+        for player in players:
+            if not player.respawning:
+                players.draw(screen)
+                players.update()
+        all_barriers.update()
         pygame.display.update()
 
         if not playing:
