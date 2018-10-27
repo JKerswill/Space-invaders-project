@@ -42,8 +42,7 @@ shot = pygame.image.load("images/shot.png")
 # -------------- Setting Events ------------
 invader_move_event = pygame.USEREVENT + 1
 invincible_event = pygame.USEREVENT + 2
-player_shoot_event = pygame.USEREVENT + 3
-player_respawn_event = pygame.USEREVENT + 4
+player_respawn_event = pygame.USEREVENT + 3
 
 # -------------- Global variables ------------
 d = 40
@@ -58,7 +57,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = 550
         self.invincible = False
-        self.can_shoot = True
         self.respawning = False
 
     def update(self):
@@ -66,10 +64,10 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if self.rect.x < width - 40:
-                self.rect.x += 6
-        if keys[pygame.K_a] or keys[pygame.K_LEFT] and self.rect.x < 0:
+                self.rect.x += 5
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             if self.rect.x > 0:
-                self.rect.x -= 6
+                self.rect.x -= 5
 
 
 class Alien(pygame.sprite.Sprite):
@@ -154,19 +152,83 @@ class Barrier(pygame.sprite.Sprite):
 # -------------- Functions ------------
 
 
-def game_over():
+def game_over(score):
     print('game over')
+    font = pygame.font.SysFont('Space Invaders Regular', 19)
+    font_med = pygame.font.SysFont('Space Invaders Regular', 26)
     font_large = pygame.font.SysFont("Space Invaders Regular", 100)
-    text2 = font_large.render("Game Over!", True, (255, 255, 255))
-    screen.blit(text2, (100, 200))
+    game_over_text = font_large.render("Game Over!", True, (255, 255, 255))
+    add_score_text = font_med.render("Username:", True, (255, 255, 255))
+    score_added_text = font_med.render("Score added to the leaderboard!", True, (255, 255, 255))
+
+    input_box = pygame.Rect(300, 380, 140, 32)
+    color_inactive = pygame.Color(255, 255, 255)
+    color_active = pygame.Color(0, 255, 0, 70)
+    color = color_inactive
+    active = True
+    text = ''
+    name_entered = False
+    score_added = False
+
 
     while True:
         pygame.display.update()
         clock.tick(15)
+        screen.fill((0,0,0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+
+            '''if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False'''
+
+                color = color_active if active else color_inactive
+
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        print(text)
+                        name_entered = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    elif len(text) < 8:
+                        text += event.unicode
+
+        txt_surface = font.render(text, True, color)
+        width = max(200, txt_surface.get_width()+10)
+        input_box.w = width
+
+        if not name_entered:
+            screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+            pygame.draw.rect(screen, color, input_box, 2)
+            screen.blit(add_score_text, (300, 350))
+        if name_entered:
+            screen.blit(score_added_text, (150, 350))
+            if not score_added:
+                SQL.add_score(text, score)
+                SQL.display_table()
+                print(SQL.scores)
+
+                score_added = True
+
+        y = 380
+
+        if score_added:
+            for line in SQL.scores:
+                name_text = font.render(str(line[0]), True, (255, 255, 255))
+                score_text = font.render(str(line[1]), True, (255, 255, 255))
+                screen.blit(name_text, (200, y))
+                screen.blit(score_text, (300, y))
+                y += 20
+
+            #screen.blit(score_text, (100, y))
+    screen.blit(game_over_text, (100, 200))
+
+
 
 
 def display_score(score):
@@ -206,11 +268,10 @@ def reset():
     create_row(row_5, 5.5, invader3, invader3_2, 10)
 
 
-
 def create_barrier(x_multiplier):
     rge = 10
     increment = 15
-    y = 473
+    y = 494
     for i in range(5):
         for i in range(rge):
             all_barriers.add(Barrier(i * 3 + x_multiplier + increment, y))
@@ -235,14 +296,11 @@ def create_barrier(x_multiplier):
 
 
     for i in range(5):
-        all_barriers.add(Barrier(i * 3 + x_multiplier, 515))
-        all_barriers.add(Barrier(i * 3 + x_multiplier + 45, 515))
+        all_barriers.add(Barrier(i * 3 + x_multiplier, y))
+        all_barriers.add(Barrier(i * 3 + x_multiplier + 45, y))
 
 
-
-# -------------- Main Game Loop ------------
-
-
+# -------------- Creating and setting groups ------------
 shots = pygame.sprite.Group()
 
 alien_shots = pygame.sprite.Group()
@@ -264,6 +322,7 @@ create_barrier(430)
 create_barrier(610)
 
 
+# -------------- Start screen loop------------
 
 def start_screen():
     bx, by = 350, 150
@@ -299,25 +358,40 @@ def start_screen():
                     if pygame.mouse.get_pos()[0] <= bx + 77 and pygame.mouse.get_pos()[1] <= by + 27:
                         game_loop()
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    game_loop()
+
+
+# --------------Main game loop------------
 
 def game_loop():
     playing = True
     direction = 1
-    speed = 500
+    speed = 560
+    speed_prev = 561
     score = 0
     players = pygame.sprite.Group()
     players.add(Player(350))
 
     lives = 3
 
-    pygame.time.set_timer(invader_move_event, speed)
-
-    aliens_prev = 55
+    aliens_prev = len(all_aliens_list)
 
     while playing:
+        # Limits the loop to run 60 times per second (60fps)
         clock.tick(60)
+        # resets the screen to black each time to allow the new image to be displayed over it
         screen.fill((0, 0, 0))
 
+        # checks if the speed has changed and if it has, pass the new variable of speed into the event timer and
+        # sets the previous speed to its new value
+        if speed_prev != speed:
+            pygame.time.set_timer(invader_move_event, speed)
+            speed_prev = speed
+
+        # if there aren't any players in the players list and the player still has lives, add a new player
+        #
         if not players and lives > 0:
             players.add(Player(350))
             for player in players:
@@ -327,6 +401,7 @@ def game_loop():
                 pygame.time.set_timer(invincible_event, 1500)
                 pygame.time.set_timer(player_respawn_event, 500)
 
+        # end the game loop if the player is out of lives
         if lives == 0:
             playing = False
 
@@ -398,24 +473,25 @@ def game_loop():
             for barrier in barrier_hit_list:
                 alien_shots.remove(bullet)
 
+        # -----------Testing if a player bullet hits an alien bullet-----------
+        for bullet in shots:
+            alien_shots_hit_list = pygame.sprite.spritecollide(bullet, alien_shots, True)
+            for i in alien_shots_hit_list:
+                shots.remove(bullet)
+
         # -----------Alien Movement-----------
 
         shift_down = False
-        accelerate = False
         for alien in all_aliens_list:
             if alien.rect.x + d >= width:
                 direction = -1
                 shift_down = True
-                accelerate = True
 
             if alien.rect.x <= 0:
                 direction = 1
                 shift_down = True
-                accelerate = True
 
-            # print(alien.rect.y)
-
-            if alien.rect.y >= 521:
+            if alien.rect.y >= 494:
                 playing = False
 
             # -----------Alien shooting-----------
@@ -426,16 +502,14 @@ def game_loop():
                 if pygame.time.get_ticks() % random.randint(10, 3000) == 0:
                     alien_shots.add(AlienBullet(alien.rect[0] + 15, alien.rect[1] + 30))
 
-
         if not all_aliens_list:
+            speed = 560
             reset()
-
-        print('aliens =', len(all_aliens_list), 'speed =', speed)
-        if len(all_aliens_list) < aliens_prev:
-            speed -= 50
             aliens_prev = len(all_aliens_list)
 
-
+        if len(all_aliens_list) < aliens_prev:
+            speed -= 10
+            aliens_prev = len(all_aliens_list)
 
         # -----------Event polling-----------
         for event in pygame.event.get():
@@ -445,19 +519,13 @@ def game_loop():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     for player in players:
-                        if player.can_shoot:
+                        if not shots:
                             shoot_x = player.rect.x + 18
                             shots.add(Bullet(shoot_x, 540))
-                            player.can_shoot = False
-                            pygame.time.set_timer(player_shoot_event, 400)
 
             if event.type == invincible_event:
                 for player in players:
                     player.invincible = False
-
-            if event.type == player_shoot_event:
-                for player in players:
-                    player.can_shoot = True
 
             if event.type == player_respawn_event:
                 for player in players:
@@ -467,9 +535,6 @@ def game_loop():
                 all_aliens_list.update(direction, 10, shift_down)
 
         all_aliens_list.draw(screen)
-
-        shift_down = False
-
         shots.draw(screen)
         shots.update()
         test_shots.update()
@@ -485,9 +550,6 @@ def game_loop():
         pygame.display.update()
 
         if not playing:
-            SQL.add_score('jamie', score)
-            SQL.display_table()
-            game_over()
-
+            game_over(score)
 
 start_screen()
