@@ -12,13 +12,10 @@ def add_score(Username, Userscore):
     cursor.execute('INSERT INTO Leaderboard(name, score) VALUES(?,?)',(Username, Userscore))
     db.commit()
 
-def order_leaderboard():
-    cursor.execute('SELECT * FROM Leaderboard ORDER BY score')
-    db.commit()
+
 
 def display_table():
-    order_leaderboard()
-    cursor.execute('SELECT * FROM Leaderboard')
+    cursor.execute('SELECT * FROM Leaderboard ORDER BY score DESC')
 
     for item in cursor:
         scores.append(item)

@@ -1,21 +1,33 @@
+# importing modules
 import pygame
 import sys
 import SQL
 import random
 
 # -------------- Initialization ------------
+# initializing pygame
 pygame.init()
 
 width = 800
 height = 600
 
+# create the pygame window that the game will run in using the variables of
+# width and height set above
 screen = pygame.display.set_mode((width, height))
+# create the clock within pygame to keep track of the ingame time and later on
+# limit how often a loop can run to make the game run a certain amount of time per second
+# essentially setting the fps
 clock = pygame.time.Clock()
+# set the caption displayed at the top of the window
 pygame.display.set_caption("Space Invaders")
+# load an image and allocate it to the variable icon, which is then passed into the
+# pygame set_icon function to set that image to the icon in the top corner of the window
 icon = pygame.image.load('images/game.png')
 pygame.display.set_icon(icon)
 
 # -------------- Setting Images ------------
+# load an image file into pygame and allocate it to the variable 'player'
+# and then transform the image stored in 'player' to be 40 width and 30 height
 player = pygame.image.load('images/ship.png')
 player = pygame.transform.scale(player, (40, 30))
 
@@ -40,6 +52,7 @@ invader3_2 = pygame.transform.scale(invader3_2, (32, 22))
 shot = pygame.image.load("images/shot.png")
 
 # -------------- Setting Events ------------
+# create a pygame event that i can call
 invader_move_event = pygame.USEREVENT + 1
 invincible_event = pygame.USEREVENT + 2
 player_respawn_event = pygame.USEREVENT + 3
@@ -49,19 +62,27 @@ d = 40
 
 
 # -------------- Classes -------------
+# create the class of 'Player' and tells pygame that it is a sprite object
 class Player(pygame.sprite.Sprite):
+    # setting the constructor to initialize the classes attributes
     def __init__(self, x):
         super().__init__()
+        # setting the sprites image to the image allocated to 'player'
         self.image = player
+        # gets the co-ordinates of the image
         self.rect = self.image.get_rect()
+        # set the images x value to the value passed in and y value to 550
         self.rect.x = x
         self.rect.y = 550
         self.invincible = False
         self.respawning = False
 
+    # editing the inbuilt update function of a pygame sprite. this needs to be used to change the sprite in any way
     def update(self):
+        # fetches the key that the user has pressed and stores it in 'keys'
         keys = pygame.key.get_pressed()
-
+        # if the d or right arrow key is pressed and the sprites x value is not out of the window
+        # increment the x value by 5, moving it right. and the inverse for left
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             if self.rect.x < width - 40:
                 self.rect.x += 5
@@ -74,31 +95,33 @@ class Alien(pygame.sprite.Sprite):
     def __init__(self, x, y, d, image1, image2, points):
         super().__init__()
         self.d = d
-        # self.x_dir = 1
         self.img1 = image1
         self.img2 = image2
         self.image = image1
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        # sets the point value of the alien, passed in when creating it
         self.points = points
         self.can_shoot = True
 
     def update(self, direction, update_speed, shift_down):
-
+        # whenever the update function is called increment the sprites x by the speed * the direction (1 or -1)
         self.rect.x += direction * update_speed
 
+        # alternates between the two images each time the function is called. creating a simple animation
         if self.image == self.img1:
             self.image = self.img2
 
         elif self.image == self.img2:
             self.image = self.img1
 
+        # if the variable 'shift_down' is true, change the spries y value by 3/4 of its dimension
         if shift_down:
             self.rect.y += 3 / 4 * self.d
 
 
-class Bullet(pygame.sprite.Sprite):
+class PlayerBullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.speed = -18
@@ -140,100 +163,23 @@ class TestBullet(pygame.sprite.Sprite):
 class Barrier(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
+        # sets a pygame rect at the x and y co-ordinates with a width and height of 3
         self.rect = pygame.Rect((x, y), (3, 3))
-        self.rect.x = x
-        self.rect.y = y
-        # self.rect = self.image.get_rect()
+
 
     def update(self):
+        # draw onto the screen with the colour green the dimentions of the rect
         pygame.draw.rect(screen, (0, 255, 0), self.rect)
 
 
 # -------------- Functions ------------
 
-
-def game_over(score):
-    print('game over')
-    font = pygame.font.SysFont('Space Invaders Regular', 19)
-    font_med = pygame.font.SysFont('Space Invaders Regular', 26)
-    font_large = pygame.font.SysFont("Space Invaders Regular", 100)
-    game_over_text = font_large.render("Game Over!", True, (255, 255, 255))
-    add_score_text = font_med.render("Username:", True, (255, 255, 255))
-    score_added_text = font_med.render("Score added to the leaderboard!", True, (255, 255, 255))
-
-    input_box = pygame.Rect(300, 380, 140, 32)
-    color_inactive = pygame.Color(255, 255, 255)
-    color_active = pygame.Color(0, 255, 0, 70)
-    color = color_inactive
-    active = True
-    text = ''
-    name_entered = False
-    score_added = False
-
-
-    while True:
-        pygame.display.update()
-        clock.tick(15)
-        screen.fill((0,0,0))
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-            '''if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    active = not active
-                else:
-                    active = False'''
-
-                color = color_active if active else color_inactive
-
-            if event.type == pygame.KEYDOWN:
-                if active:
-                    if event.key == pygame.K_RETURN:
-                        print(text)
-                        name_entered = True
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    elif len(text) < 8:
-                        text += event.unicode
-
-        txt_surface = font.render(text, True, color)
-        width = max(200, txt_surface.get_width()+10)
-        input_box.w = width
-
-        if not name_entered:
-            screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
-            pygame.draw.rect(screen, color, input_box, 2)
-            screen.blit(add_score_text, (300, 350))
-        if name_entered:
-            screen.blit(score_added_text, (150, 350))
-            if not score_added:
-                SQL.add_score(text, score)
-                SQL.display_table()
-                print(SQL.scores)
-
-                score_added = True
-
-        y = 380
-
-        if score_added:
-            for line in SQL.scores:
-                name_text = font.render(str(line[0]), True, (255, 255, 255))
-                score_text = font.render(str(line[1]), True, (255, 255, 255))
-                screen.blit(name_text, (200, y))
-                screen.blit(score_text, (300, y))
-                y += 20
-
-            #screen.blit(score_text, (100, y))
-    screen.blit(game_over_text, (100, 200))
-
-
-
-
 def display_score(score):
+    # sets the font as "Space Invaders Regular" with a size of 11
     font = pygame.font.SysFont("Space Invaders Regular", 11)
+    # renders the text '"score= " + str(score)' with antialiasing and a colour of white and stores it in 'points'
     points = font.render("score= " + str(score), True, (255, 255, 255))
+    # displays the string rendered in points at the co-ordinates (5, 5)
     screen.blit(points, (5, 5))
 
 
@@ -241,8 +187,10 @@ def display_lives(lives):
     font = pygame.font.SysFont("Space Invaders Regular", 11)
     render_lives = font.render("Lives:", True, (255, 255, 255))
     screen.blit(render_lives, (680, 7))
+    # transforms the player by (20, 15) and stores it in a new variable 'player_small'
     player_small = pygame.transform.scale(player, (20, 15))
 
+    # displays 3 of the 'player_small' images if there are 3 lives, 2 if there are 2 and 1 if there are 1
     if lives >= 1:
         screen.blit(player_small, (725, 5))
 
@@ -254,13 +202,17 @@ def display_lives(lives):
 
 
 def create_row(row, y_separation, img1, img2, points):
+    # sets the number of aliens to place in each row
     num_aliens = 11
+    # fore each number in 'num_aliens' add the oject Alien to the pygame sprite group row passed into the function
+    # and all_aliens_list, with each one being farther to the right than the last
     for e in range(num_aliens):
         row.add(Alien((e + 1) * d + e * 10, d * y_separation, d, img1, img2, points))
         all_aliens_list.add(Alien((e + 1) * d + e * 10, d * y_separation, d, img1, img2, points))
 
 
 def reset():
+    # creates the 5 rows of aliens
     create_row(row_1, 1.5, invader1, invader1_2, 30)
     create_row(row_2, 2.5, invader2, invader2_2, 20)
     create_row(row_3, 3.5, invader2, invader2_2, 20)
@@ -293,7 +245,6 @@ def create_barrier(x_multiplier):
         rge -= 1
         increment += 3
         y += 3
-
 
     for i in range(5):
         all_barriers.add(Barrier(i * 3 + x_multiplier, y))
@@ -521,7 +472,7 @@ def game_loop():
                     for player in players:
                         if not shots:
                             shoot_x = player.rect.x + 18
-                            shots.add(Bullet(shoot_x, 540))
+                            shots.add(PlayerBullet(shoot_x, 540))
 
             if event.type == invincible_event:
                 for player in players:
@@ -551,5 +502,70 @@ def game_loop():
 
         if not playing:
             game_over(score)
+
+
+# --------------End game loop------------
+
+def game_over(score):
+    print('game over')
+    font = pygame.font.SysFont('Space Invaders Regular', 19)
+    font_med = pygame.font.SysFont('Space Invaders Regular', 26)
+    font_large = pygame.font.SysFont("Space Invaders Regular", 100)
+    game_over_text = font_large.render("Game Over!", True, (255, 255, 255))
+    add_score_text = font_med.render("Username:", True, (255, 255, 255))
+    score_added_text = font_med.render("Score added to the leaderboard!", True, (255, 255, 255))
+
+    input_box = pygame.Rect(300, 380, 140, 32)
+
+    username = ''
+    name_entered = False
+    score_added = False
+
+    while True:
+        pygame.display.update()
+        clock.tick(15)
+        screen.fill((0, 0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    print(username)
+                    name_entered = True
+                elif event.key == pygame.K_BACKSPACE:
+                    username = username[:-1]
+                elif len(username) < 6:
+                    username += event.unicode
+
+        txt_surface = font.render(username, True, (255, 255, 255))
+        width = max(200, txt_surface.get_width() + 10)
+        input_box.w = width
+
+        if not name_entered:
+            screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+            pygame.draw.rect(screen, (255, 255, 255), input_box, 2)
+            screen.blit(add_score_text, (300, 350))
+            screen.blit(game_over_text, (100, 200))
+
+        if name_entered:
+            screen.blit(score_added_text, (150, 10))
+            if not score_added:
+                SQL.add_score(username, score)
+                SQL.display_table()
+                print(SQL.scores)
+
+                score_added = True
+
+        y = 40
+
+        if score_added:
+            for line in SQL.scores:
+                name_text = font.render(str(line[0]), True, (255, 255, 255))
+                score_text = font.render(str(line[1]), True, (255, 255, 255))
+                screen.blit(name_text, (200, y))
+                screen.blit(score_text, (300, y))
+                y += 20
 
 start_screen()
